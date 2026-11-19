@@ -1,0 +1,6 @@
+{
+  "name": "Goan Gymkhana",
+  "description": "Official-style digital club companion for The Goan Gymkhana, Ngara Road, Nairobi (Est. 1935–1936): heritage archive, sports facilities, bookings, events, hospitality, and membership applications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

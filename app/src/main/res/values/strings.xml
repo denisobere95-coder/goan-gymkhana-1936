@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Goan Gymkhana</string>
+    <string name="club_tagline">Heritage. Sport. Community.</string>
+    <string name="club_est">ESTABLISHED 1935–1936</string>
+    <string name="club_hero_title">A Legacy of Sport. A Community for Life.</string>
+    <string name="club_hero_subtitle">Ngara Road, opposite the National Museums of Kenya, Nairobi</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="nav_club">Club</string>
+    <string name="nav_facilities">Facilities</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_membership">Membership</string>
+    <string name="nav_portal">Portal</string>
+    <string name="cd_clubhouse_hero">Historic Victorian stone clubhouse of The Goan Gymkhana Nairobi</string>
+    <string name="cd_club_crest">The Goan Gymkhana Nairobi crest emblem</string>
+</resources>

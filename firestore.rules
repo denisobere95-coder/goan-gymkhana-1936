@@ -1,0 +1,343 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        ('email_verified' in request.auth.token &&
+         request.auth.token.email_verified == true &&
+         'email' in request.auth.token &&
+         request.auth.token.email == 'denisobere95@gmail.com')
+      );
+    }
+
+    function isValidFacilityId(facilityId) {
+      return facilityId in [
+        'swimming_pool',
+        'astroturf_football',
+        'badminton',
+        'table_tennis',
+        'padel',
+        'clubhouse_hall'
+      ];
+    }
+
+    function isValidBookingStatus(status) {
+      return status in ['pending', 'approved', 'rejected', 'cancelled'];
+    }
+
+    function isValidFacilityBooking(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userName is string && data.userName.size() >= 1 && data.userName.size() <= 80 &&
+             data.userEmail is string && data.userEmail.size() >= 3 && data.userEmail.size() <= 120 &&
+             data.facilityId is string && isValidFacilityId(data.facilityId) &&
+             data.facilityName is string && data.facilityName.size() >= 1 && data.facilityName.size() <= 80 &&
+             data.preferredDate is string && data.preferredDate.size() >= 4 && data.preferredDate.size() <= 30 &&
+             data.timeSlot is string && data.timeSlot.size() >= 4 && data.timeSlot.size() <= 40 &&
+             data.participants is int && data.participants >= 1 && data.participants <= 60 &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 400)) &&
+             data.status is string && isValidBookingStatus(data.status) &&
+             (!('managerNote' in data) || (data.managerNote is string && data.managerNote.size() <= 300)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMembershipCategory(category) {
+      return category in ['Individual', 'Family', 'Junior', 'Corporate', 'Social'];
+    }
+
+    function isValidMembershipStatus(status) {
+      return status in ['pending', 'under_review', 'approved', 'declined', 'withdrawn'];
+    }
+
+    function isValidMembershipApplication(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100 &&
+             data.phone is string && data.phone.size() >= 6 && data.phone.size() <= 30 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 120 &&
+             data.category is string && isValidMembershipCategory(data.category) &&
+             data.interests is list && data.interests.size() <= 8 &&
+             (data.interests.size() == 0 || (data.interests[0] is string && data.interests[0].size() <= 40)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 500)) &&
+             data.status is string && isValidMembershipStatus(data.status) &&
+             (!('reviewNote' in data) || (data.reviewNote is string && data.reviewNote.size() <= 300)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidEnquiryType(enquiryType) {
+      return enquiryType in [
+        'Dining & Bar',
+        'Private Celebration',
+        'Corporate Event',
+        'Sports & Coaching',
+        'General'
+      ];
+    }
+
+    function isValidEnquiryStatus(status) {
+      return status in ['submitted', 'responded', 'closed'];
+    }
+
+    function isValidClubEnquiry(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.senderName is string && data.senderName.size() >= 2 && data.senderName.size() <= 80 &&
+             data.phone is string && data.phone.size() >= 6 && data.phone.size() <= 30 &&
+             data.enquiryType is string && isValidEnquiryType(data.enquiryType) &&
+             (!('preferredDate' in data) || (data.preferredDate is string && data.preferredDate.size() <= 30)) &&
+             (!('guestCount' in data) || (data.guestCount is int && data.guestCount >= 1 && data.guestCount <= 300)) &&
+             data.message is string && data.message.size() >= 5 && data.message.size() <= 600 &&
+             data.status is string && isValidEnquiryStatus(data.status) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMembershipInquiryStatus(status) {
+      return status in ['submitted', 'reviewed', 'closed'];
+    }
+
+    function isValidMembershipInquiry(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 120 &&
+             data.interest is string && data.interest.size() >= 2 && data.interest.size() <= 120 &&
+             data.status is string && isValidMembershipInquiryStatus(data.status) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMemberProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 80 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 120 &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+             data.preferredSport is string && data.preferredSport.size() >= 2 && data.preferredSport.size() <= 40 &&
+             data.membershipTier is string && data.membershipTier.size() >= 2 && data.membershipTier.size() <= 40 &&
+             (!('emergencyContact' in data) || (data.emergencyContact is string && data.emergencyContact.size() <= 80)) &&
+             (!('dietaryNotes' in data) || (data.dietaryNotes is string && data.dietaryNotes.size() <= 200)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /admins/{adminUid} {
+      allow get: if isSignedIn() && request.auth.uid == adminUid;
+      allow list, create, update, delete: if false;
+    }
+
+    match /facilityBookings/{bookingId} {
+      allow get: if isSignedIn() && isValidId(bookingId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(bookingId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().status == 'pending' &&
+                       !('managerNote' in incoming()) &&
+                       incoming().keys().hasAll([
+                         'userId', 'userName', 'userEmail', 'facilityId', 'facilityName',
+                         'preferredDate', 'timeSlot', 'participants', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'userName', 'userEmail', 'facilityId', 'facilityName',
+                         'preferredDate', 'timeSlot', 'participants', 'notes', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidFacilityBooking(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(bookingId) &&
+                       isValidFacilityBooking(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt && (
+                         (
+                           isAdmin() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'managerNote', 'updatedAt'])
+                         ) ||
+                         (
+                           existing().userId == request.auth.uid &&
+                           existing().status in ['pending'] &&
+                           incoming().status == 'cancelled' &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if false;
+    }
+
+    match /membershipApplications/{applicationId} {
+      allow get: if isSignedIn() && isValidId(applicationId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(applicationId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().status == 'pending' &&
+                       !('reviewNote' in incoming()) &&
+                       incoming().keys().hasAll([
+                         'userId', 'fullName', 'phone', 'email', 'category',
+                         'interests', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'fullName', 'phone', 'email', 'category',
+                         'interests', 'notes', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidMembershipApplication(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(applicationId) &&
+                       isValidMembershipApplication(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt && (
+                         (
+                           isAdmin() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'reviewNote', 'updatedAt'])
+                         ) ||
+                         (
+                           existing().userId == request.auth.uid &&
+                           existing().status in ['pending', 'under_review'] &&
+                           incoming().status == 'withdrawn' &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if false;
+    }
+
+    match /clubEnquiries/{enquiryId} {
+      allow get: if isSignedIn() && isValidId(enquiryId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(enquiryId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().status == 'submitted' &&
+                       incoming().keys().hasAll([
+                         'userId', 'senderName', 'phone', 'enquiryType',
+                         'message', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'senderName', 'phone', 'enquiryType',
+                         'preferredDate', 'guestCount', 'message', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidClubEnquiry(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(enquiryId) &&
+                       isValidClubEnquiry(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt && (
+                         (
+                           isAdmin() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         ) ||
+                         (
+                           existing().userId == request.auth.uid &&
+                           existing().status == 'submitted' &&
+                           incoming().status == 'closed' &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if false;
+    }
+
+    match /membership_inquiries/{inquiryId} {
+      allow get: if isSignedIn() && isValidId(inquiryId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(inquiryId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().status == 'submitted' &&
+                       incoming().keys().hasAll([
+                         'userId', 'name', 'email', 'interest', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'name', 'email', 'interest', 'status', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidMembershipInquiry(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(inquiryId) &&
+                       isValidMembershipInquiry(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt && (
+                         (
+                           isAdmin() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         ) ||
+                         (
+                           existing().userId == request.auth.uid &&
+                           existing().status == 'submitted' &&
+                           incoming().status == 'closed' &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if false;
+    }
+
+    match /memberProfiles/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list: if isSignedIn() && isAdmin();
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().membershipTier == 'Member Portal' &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'email', 'preferredSport',
+                         'membershipTier', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'email', 'phone', 'preferredSport',
+                         'membershipTier', 'emergencyContact', 'dietaryNotes',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidMemberProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       isValidMemberProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt && (
+                         (
+                           request.auth.uid == userId &&
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'displayName', 'phone', 'preferredSport',
+                             'emergencyContact', 'dietaryNotes', 'updatedAt'
+                           ])
+                         ) ||
+                         (
+                           isAdmin() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'membershipTier', 'updatedAt'
+                           ])
+                         )
+                       );
+
+      allow delete: if false;
+    }
+  }
+}

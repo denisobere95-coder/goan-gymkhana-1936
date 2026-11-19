@@ -1,0 +1,347 @@
+{
+  "entities": {
+    "FacilityBooking": {
+      "title": "FacilityBooking",
+      "description": "A member or visitor request to reserve a Goan Gymkhana sports or clubhouse facility.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the booking requester."
+        },
+        "userName": {
+          "type": "string",
+          "description": "Display name of the requester."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email address of the requester."
+        },
+        "facilityId": {
+          "type": "string",
+          "enum": [
+            "swimming_pool",
+            "astroturf_football",
+            "badminton",
+            "table_tennis",
+            "padel",
+            "clubhouse_hall"
+          ],
+          "description": "Identifier of the requested club facility."
+        },
+        "facilityName": {
+          "type": "string",
+          "description": "Human-readable name of the facility."
+        },
+        "preferredDate": {
+          "type": "string",
+          "description": "Requested date string (e.g. 2026-11-24)."
+        },
+        "timeSlot": {
+          "type": "string",
+          "description": "Requested session time window."
+        },
+        "participants": {
+          "type": "integer",
+          "description": "Expected number of players or guests (1 to 60)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional special requirements or team notes."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected", "cancelled"],
+          "description": "Workflow state of the booking request."
+        },
+        "managerNote": {
+          "type": "string",
+          "description": "Optional note recorded by club management upon review."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "userName",
+        "userEmail",
+        "facilityId",
+        "facilityName",
+        "preferredDate",
+        "timeSlot",
+        "participants",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MembershipApplication": {
+      "title": "MembershipApplication",
+      "description": "Digital membership application submitted to The Goan Gymkhana Nairobi.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the applicant."
+        },
+        "fullName": {
+          "type": "string",
+          "description": "Applicant full legal name."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Applicant telephone or WhatsApp contact number."
+        },
+        "email": {
+          "type": "string",
+          "description": "Applicant email address."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Individual", "Family", "Junior", "Corporate", "Social"],
+          "description": "Requested membership category interest."
+        },
+        "interests": {
+          "type": "array",
+          "description": "Up to 8 sporting or social interests selected by the applicant."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional background or connection to the club."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "under_review", "approved", "declined", "withdrawn"],
+          "description": "Application review status."
+        },
+        "reviewNote": {
+          "type": "string",
+          "description": "Optional feedback from club management."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when submitted (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "fullName",
+        "phone",
+        "email",
+        "category",
+        "interests",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ClubEnquiry": {
+      "title": "ClubEnquiry",
+      "description": "Hospitality, dining, event hire, or general club enquiry.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the sender."
+        },
+        "senderName": {
+          "type": "string",
+          "description": "Name of the sender."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact telephone number."
+        },
+        "enquiryType": {
+          "type": "string",
+          "enum": [
+            "Dining & Bar",
+            "Private Celebration",
+            "Corporate Event",
+            "Sports & Coaching",
+            "General"
+          ],
+          "description": "Category of the club enquiry."
+        },
+        "preferredDate": {
+          "type": "string",
+          "description": "Optional preferred event or dining date."
+        },
+        "guestCount": {
+          "type": "integer",
+          "description": "Optional estimated number of guests (1 to 300)."
+        },
+        "message": {
+          "type": "string",
+          "description": "Enquiry details or questions for management."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["submitted", "responded", "closed"],
+          "description": "Enquiry handling status."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when submitted (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "senderName",
+        "phone",
+        "enquiryType",
+        "message",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MembershipInquiry": {
+      "title": "MembershipInquiry",
+      "description": "Quick prospective member expression-of-interest inquiry containing Name, Email, and Interest.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the prospective member."
+        },
+        "name": {
+          "type": "string",
+          "description": "Prospective member name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Prospective member email address."
+        },
+        "interest": {
+          "type": "string",
+          "description": "Selected or entered membership/sporting interest."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["submitted", "reviewed", "closed"],
+          "description": "Inquiry handling status."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when submitted (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "email",
+        "interest",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MemberProfile": {
+      "title": "MemberProfile",
+      "description": "Personal member profile and preferences managed from the Private Member Portal.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID matching document ID."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Preferred member display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Signed-in member email address."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Optional member contact telephone number."
+        },
+        "preferredSport": {
+          "type": "string",
+          "description": "Primary club sport or interest."
+        },
+        "membershipTier": {
+          "type": "string",
+          "description": "Portal membership tier label (admin-managed after initial creation)."
+        },
+        "emergencyContact": {
+          "type": "string",
+          "description": "Optional emergency contact details."
+        },
+        "dietaryNotes": {
+          "type": "string",
+          "description": "Optional dining & clubhouse hospitality notes."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "email",
+        "preferredSport",
+        "membershipTier",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/facilityBookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/FacilityBooking" },
+      "description": "Facility booking requests owned by their creator and reviewable by club management."
+    },
+    "/membershipApplications/{applicationId}": {
+      "schema": { "$ref": "#/entities/MembershipApplication" },
+      "description": "Membership applications owned by the applicant and reviewable by club management."
+    },
+    "/clubEnquiries/{enquiryId}": {
+      "schema": { "$ref": "#/entities/ClubEnquiry" },
+      "description": "Hospitality, event, and general enquiries owned by the sender and reviewable by club management."
+    },
+    "/membership_inquiries/{inquiryId}": {
+      "schema": { "$ref": "#/entities/MembershipInquiry" },
+      "description": "Quick prospective member inquiries stored by name, email, and interest."
+    },
+    "/memberProfiles/{userId}": {
+      "schema": { "$ref": "#/entities/MemberProfile" },
+      "description": "Private member profile documents strictly scoped to their owner UID and club admins."
+    }
+  }
+}
